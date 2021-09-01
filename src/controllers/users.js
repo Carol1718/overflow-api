@@ -1,9 +1,10 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
-
+const jwt = require("jsonwebtoken");
+const auth = require("../config/auth");
 module.exports = {
-    store(req, res) {
-        const { nmae, email, password } = req.body;
+    async store(req, res) {
+        const { name, email, password } = req.body;
 
         //verifica se o usuário já existe
          
@@ -25,11 +26,17 @@ module.exports = {
             password: passwordHashed
         });
 
+        const token = jwt.sign({UserId: user.id}, auth.secret, {
+            expiresIn: "1h"
+        });
+
         res.send({
             user: {
+                id: user.id,
                 name: user.name,
                 email: user.email
-            }
-        })
+            },
+            token
+        });
     }
 }
